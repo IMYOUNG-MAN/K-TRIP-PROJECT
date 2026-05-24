@@ -26,6 +26,42 @@ const STYLES = ["Photo Spots", "Food & Dining", "Shopping", "Wellness"];
 
 const TOTAL_STEPS = 5;
 
+function CustomInput({
+  placeholder,
+  onAdd,
+}: {
+  placeholder: string;
+  onAdd: (value: string) => void;
+}) {
+  const [input, setInput] = useState("");
+
+  const handleAdd = () => {
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    onAdd(trimmed);
+    setInput("");
+  };
+
+  return (
+    <div className="flex gap-2 mt-1">
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+        placeholder={placeholder}
+        className="flex-1 px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-black transition-colors"
+      />
+      <button
+        onClick={handleAdd}
+        className="px-4 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors"
+      >
+        Add
+      </button>
+    </div>
+  );
+}
+
 export default function QuizPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -43,6 +79,13 @@ export default function QuizPage() {
       [key]: prev[key].includes(value)
         ? prev[key].filter((v) => v !== value)
         : [...prev[key], value],
+    }));
+  };
+
+  const addCustom = (key: "dramas" | "kpop", value: string) => {
+    setProfile((prev) => ({
+      ...prev,
+      [key]: prev[key].includes(value) ? prev[key] : [...prev[key], value],
     }));
   };
 
@@ -73,8 +116,10 @@ export default function QuizPage() {
         {/* Step 1: Dramas */}
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold">What K-dramas are you into?</h2>
-            <p className="text-gray-400 text-sm">Pick as many as you like</p>
+            <div>
+              <h2 className="text-2xl font-bold">What K-dramas are you into?</h2>
+              <p className="text-gray-400 text-sm mt-1">Pick as many as you like — or skip if you&apos;re not sure</p>
+            </div>
             <div className="flex flex-wrap gap-2">
               {DRAMAS.map((d) => (
                 <button
@@ -89,15 +134,32 @@ export default function QuizPage() {
                   {d}
                 </button>
               ))}
+              {profile.dramas
+                .filter((d) => !DRAMAS.includes(d))
+                .map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => toggle("dramas", d)}
+                    className="px-4 py-2 rounded-full border text-sm bg-black text-white border-black"
+                  >
+                    {d} ×
+                  </button>
+                ))}
             </div>
+            <CustomInput
+              placeholder="Don't see yours? Type it in"
+              onAdd={(v) => addCustom("dramas", v)}
+            />
           </div>
         )}
 
         {/* Step 2: K-pop */}
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Which K-pop groups do you love?</h2>
-            <p className="text-gray-400 text-sm">Pick as many as you like</p>
+            <div>
+              <h2 className="text-2xl font-bold">Which K-pop groups do you love?</h2>
+              <p className="text-gray-400 text-sm mt-1">Pick as many as you like — or skip if you&apos;re not sure</p>
+            </div>
             <div className="flex flex-wrap gap-2">
               {KPOP.map((g) => (
                 <button
@@ -112,7 +174,22 @@ export default function QuizPage() {
                   {g}
                 </button>
               ))}
+              {profile.kpop
+                .filter((g) => !KPOP.includes(g))
+                .map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => toggle("kpop", g)}
+                    className="px-4 py-2 rounded-full border text-sm bg-black text-white border-black"
+                  >
+                    {g} ×
+                  </button>
+                ))}
             </div>
+            <CustomInput
+              placeholder="Don't see yours? Type it in"
+              onAdd={(v) => addCustom("kpop", v)}
+            />
           </div>
         )}
 
@@ -192,28 +269,38 @@ export default function QuizPage() {
         )}
 
         {/* Navigation */}
-        <div className="flex gap-3">
-          {step > 1 && (
-            <button
-              onClick={back}
-              className="flex-1 py-3 border border-gray-200 rounded-2xl font-medium hover:border-gray-400 transition-colors"
-            >
-              ← Back
-            </button>
-          )}
-          {step < TOTAL_STEPS ? (
+        <div className="space-y-3">
+          <div className="flex gap-3">
+            {step > 1 && (
+              <button
+                onClick={back}
+                className="flex-1 py-3 border border-gray-200 rounded-2xl font-medium hover:border-gray-400 transition-colors"
+              >
+                ← Back
+              </button>
+            )}
+            {step < TOTAL_STEPS ? (
+              <button
+                onClick={next}
+                className="flex-1 py-3 bg-black text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors"
+              >
+                Next →
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="flex-1 py-3 bg-black text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors"
+              >
+                Build My Itinerary ✨
+              </button>
+            )}
+          </div>
+          {(step === 1 || step === 2) && (
             <button
               onClick={next}
-              className="flex-1 py-3 bg-black text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors"
+              className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors py-1"
             >
-              Next →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="flex-1 py-3 bg-black text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors"
-            >
-              Build My Itinerary ✨
+              Not into K-{step === 1 ? "dramas" : "pop"}? Skip this →
             </button>
           )}
         </div>
