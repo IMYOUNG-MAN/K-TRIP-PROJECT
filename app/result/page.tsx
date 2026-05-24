@@ -158,6 +158,9 @@ export default function ResultPage() {
           <p className="text-xs tracking-widest text-gray-400 uppercase">Your K-Trip</p>
           <h1 className="text-2xl font-bold text-black">Your Seoul Itinerary</h1>
           <p className="text-sm text-gray-500">{itinerary.profile_summary}</p>
+          <p className="text-xs text-gray-400 bg-gray-50 rounded-xl px-3 py-2 leading-relaxed">
+            ✨ AI-generated itinerary — locations are based on well-known K-culture spots, but we recommend confirming hours and availability before you visit.
+          </p>
         </div>
 
         {/* Day cards */}
